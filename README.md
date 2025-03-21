@@ -31,4 +31,4 @@ Automates configuration backups for AOS-CX switches via REST API, with schedulin
    - Service name: Ensure it’s set to SwitchBackupService.
    - Click "Install service".
 8. Start the service
-   net start SwitchBackupService
+   - net start SwitchBackupService
