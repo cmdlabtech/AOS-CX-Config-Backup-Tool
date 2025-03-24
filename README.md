@@ -1,6 +1,9 @@
 # AOS-CX Config Backup Tool
 Automates configuration backups for AOS-CX switches via REST API, with scheduling or manual trigger.
 
+# Requirements
+ - v10.13 API - Released with 10.13.1000
+
 ***Manual EXE Execution***
 1. Create CSV file with the structure below
 
