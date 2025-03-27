@@ -30,8 +30,8 @@ Automates configuration backups for AOS-CX switches via REST API, with schedulin
 5. Run the following command to install the service:
    - %USERPROFILE%\Downloads\nssm-2.24\nssm-2.24\win64\nssm.exe install SwitchBackupService
 6. In the NSSM GUI that appears:
-   - Path: Set to C:\path\to\your\script\dist\AOS-CX-Config-Export.exe.
-   - Startup directory: Set to C:\path\to\your\script\dist.
+   - Path: Set to C:\path\to\AOS-CX-Config-Export.exe.
+   - Startup directory: Set to C:\path\to\chosen\dir.
    - Arguments: Leave blank (the executable doesn’t need arguments).
    - Service name: Ensure it’s set to SwitchBackupService.
    - Click "Install service".
