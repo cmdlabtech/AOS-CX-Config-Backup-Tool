@@ -4,7 +4,7 @@ Automates configuration backups for AOS-CX switches via REST API, with schedulin
 **Download latest version from Releases**
 
 # Requirements
- - v10.13 API - Released with 10.13.1000
+  - Switch firmware version of at least 10.04
 
 ***Manual EXE Execution***
 1. Create CSV file with the structure below
