@@ -24,5 +24,5 @@ A lightweight utility to automate configuration backups for AOS-CX switches usin
 
 <!-- GitAds-Verify: Z6ZHXBL5TGG74LMBZTJYZARG8DOAL5FP -->
 
-## GitAds Sponsored
+# GitAds Sponsored
 [![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=cmdlabtech/aos-cx-config-backup-tool@github)](https://gitads.dev/v1/ad-track?source=cmdlabtech/aos-cx-config-backup-tool@github)
