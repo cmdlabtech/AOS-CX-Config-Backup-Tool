@@ -21,3 +21,5 @@ A lightweight utility to automate configuration backups for AOS-CX switches usin
 5. Set API Credentials - user can have operator built-in role for security purposes
 6. (optional) Enable "Automatic Schedule"
 7. (optional) Click "Run Backup Now" for a manual config backup of switches listed in csv file
+
+<!-- GitAds-Verify: Z6ZHXBL5TGG74LMBZTJYZARG8DOAL5FP -->
