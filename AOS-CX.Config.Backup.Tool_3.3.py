@@ -277,7 +277,7 @@ class SwitchBackup:
 
     def setup_gui(self):
         self.root = ttk.Window(themename="darkly")
-        self.root.title(f"AOS-CX Config Backup Tool {self.VERSION}")
+        self.root.title("AOS-CX Config Backup Tool")
         try:
             self.root.iconbitmap(self.resource_path("icon.ico"))  # Updated to use icon.ico
         except tk.TclError:
