@@ -1,12 +1,23 @@
 # AOS-CX Config Backup Tool
 A lightweight utility to automate configuration backups for AOS-CX switches using the REST API. Supports both scheduled and manual backups, running discreetly from the system tray without requiring a service installation. Ensures reliable, unattended operation for scheduled tasks.
 
-**Download latest version from Releases**
+## 📥 Download
+
+**Pre-built executables available in this repository:**
+- **Windows**: `AOS-CX.Config.Backup.Tool.exe`
+- **macOS**: `AOS-CX Config Backup Tool.app/`
+
+Or download from the [Releases](../../releases) page.
+
+## 📚 Documentation
+
+- **[Build Instructions](docs/BUILD.md)** - Compile from source
+- **[GitHub Actions Guide](docs/GITHUB_ACTIONS.md)** - CI/CD automation
 
 # Requirements
   - Switch firmware version of at least 10.04
 
-**Manual EXE Execution**
+## Usage
 1. Create CSV file with the structure below
 
   | name    | ip           |

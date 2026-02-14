@@ -1,0 +1,43 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec.bak
+*.egg-info/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# User configuration and data files (sensitive/user-specific)
+backup_config.json
+switch_status.json
+encryption_key.key
+*.log
+switches.csv
+backups/
+
+# Keep executables in root directory (built by GitHub Actions)
+# These are intentionally tracked:
+# - AOS-CX.Config.Backup.Tool.exe (Windows)
+# - AOS-CX Config Backup Tool.app/ (macOS)

@@ -1,0 +1,12 @@
+# Collapse build-related directories in GitHub UI
+.github/ linguist-generated
+.build/ linguist-generated
+docs/ linguist-documentation
+
+# Mark build outputs as binary
+*.app binary
+*.exe binary
+
+# Exclude from language statistics
+.build/* linguist-vendored
+.github/* linguist-vendored
