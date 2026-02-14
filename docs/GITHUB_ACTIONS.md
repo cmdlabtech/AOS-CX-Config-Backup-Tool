@@ -49,8 +49,8 @@ git push origin main
 
 ```bash
 # Create and push a version tag
-git tag -a v3.2 -m "Release version 3.2"
-git push origin v3.2
+git tag -a v3.3 -m "Release version 3.3"
+git push origin v3.3
 ```
 
 **Result**: 
@@ -191,8 +191,8 @@ After committing the workflow file:
 
 4. **Create first release** (optional):
    ```bash
-   git tag -a v3.2 -m "Initial release with GitHub Actions"
-   git push origin v3.2
+   git tag -a v3.3 -m "Initial release with GitHub Actions"
+   git push origin v3.3
    ```
 
 ## Monitoring

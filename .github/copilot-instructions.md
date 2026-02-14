@@ -17,7 +17,7 @@ Single-file Python GUI application for automated AOS-CX switch configuration bac
 ## Architecture & Key Components
 
 ### Monolithic Design
-- **Single file**: `AOS-CX.Config.Backup.Tool_3.2.py` contains entire application
+- **Single file**: `AOS-CX.Config.Backup.Tool_3.3.py` contains entire application
 - `SwitchBackup` class manages all functionality: GUI, scheduling, backups, uploads
 - System tray integration keeps app running in background
 - Threading isolates scheduled backups from GUI operations
@@ -95,7 +95,7 @@ session.post(f"https://{ip}/rest/v10.04/logout", ...)
 
 ### Running from Source
 ```bash
-python AOS-CX.Config.Backup.Tool_3.2.py
+python AOS-CX.Config.Backup.Tool_3.3.py
 ```
 No virtual environment files present - manual setup required.
 

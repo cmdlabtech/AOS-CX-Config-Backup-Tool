@@ -7,7 +7,7 @@ project_root = os.path.dirname(spec_root)
 block_cipher = None
 
 a = Analysis(
-    [os.path.join(project_root, 'AOS-CX.Config.Backup.Tool_3.2.py')],
+    [os.path.join(project_root, 'AOS-CX.Config.Backup.Tool_3.3.py')],
     pathex=[],
     binaries=[],
     datas=[(os.path.join(spec_root, 'icon.ico'), '.')],
@@ -65,8 +65,8 @@ app = BUNDLE(
     info_plist={
         'CFBundleName': 'AOS-CX Config Backup Tool',
         'CFBundleDisplayName': 'AOS-CX Config Backup Tool',
-        'CFBundleVersion': '3.2',
-        'CFBundleShortVersionString': '3.2',
+        'CFBundleVersion': '3.3',
+        'CFBundleShortVersionString': '3.3',
         'NSHighResolutionCapable': True,
     },
 )

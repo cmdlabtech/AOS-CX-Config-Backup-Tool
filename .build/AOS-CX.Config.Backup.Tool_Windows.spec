@@ -10,7 +10,7 @@ project_root = os.path.dirname(spec_root)
 block_cipher = None
 
 a = Analysis(
-    [os.path.join(project_root, 'AOS-CX.Config.Backup.Tool_3.2.py')],
+    [os.path.join(project_root, 'AOS-CX.Config.Backup.Tool_3.3.py')],
     pathex=[],
     binaries=[],
     datas=[(os.path.join(spec_root, 'icon.ico'), '.')],
