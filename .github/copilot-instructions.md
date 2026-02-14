@@ -2,8 +2,19 @@
 
 ## ⚠️ CRITICAL RULES
 
+### Token Efficiency
+**Be efficient with token usage.** Do not create full summaries of changes, fix documentation, or comprehensive change logs unless explicitly requested. Focus on making the changes and providing brief confirmation.
+
 ### Git Workflow
 **DO NOT commit or push to GitHub until explicitly instructed by the user.** Always wait for approval before making any Git operations.
+
+**Pre-Commit Cleanup Checklist:**
+Before any commit to GitHub, ensure a clean repository by removing:
+- Runtime/app-generated files: `encryption_key.key`, `switch_backup.log`, `backup_config.json`, `switch_status.json`, `switches.csv`
+- Build artifacts: `build/`, `dist/`, `__pycache__/`, `*.pyc`, `*.pyo`
+- OS files: `.DS_Store`, `Thumbs.db`
+- User data: `backups/` directory
+These files are already in `.gitignore` but may exist locally from app testing.
 
 ### Security Requirements
 Always follow best security practices:
@@ -12,7 +23,7 @@ Always follow best security practices:
 - **Credential Storage**: Maintain Fernet encryption for all secrets, never log passwords, ensure key file protection
 
 ## Project Overview
-Single-file Python GUI application for automated AOS-CX switch configuration backups via REST API (v10.04). Runs from system tray with scheduling capabilities and multi-destination support (local/Git/Wasabi S3).
+Single-file Python GUI application for automated AOS-CX switch configuration backups via REST API (v10.04). Runs from system tray with scheduling capabilities and multi-destination support (local/Git/Wasabi S3). **Windows-only distribution.**
 
 ## Architecture & Key Components
 

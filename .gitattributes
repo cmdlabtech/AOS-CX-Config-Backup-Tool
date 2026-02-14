@@ -1,7 +1,7 @@
 # Collapse build-related directories in GitHub UI
 .github/ linguist-generated
 .build/ linguist-generated
-docs/ linguist-documentation
+.docs/ linguist-documentation
 
 # Mark build outputs as binary
 *.app binary

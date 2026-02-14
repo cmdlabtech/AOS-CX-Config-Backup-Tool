@@ -3,18 +3,13 @@ A lightweight utility to automate configuration backups for AOS-CX switches usin
 
 ## 📥 Download
 
-**Pre-built executables available in this repository:**
+**Pre-built Windows executable available in this repository:**
 - **Windows**: `AOS-CX.Config.Backup.Tool.exe`
-- **macOS**: `AOS-CX Config Backup Tool.app/`
 
 Or download from the [Releases](../../releases) page.
 
-## 📚 Documentation
-
-- **[Build Instructions](docs/BUILD.md)** - Compile from source
-- **[GitHub Actions Guide](docs/GITHUB_ACTIONS.md)** - CI/CD automation
-
 # Requirements
+  - Windows 10/11
   - Switch firmware version of at least 10.04
 
 ## Usage
