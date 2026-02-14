@@ -37,7 +37,6 @@ encryption_key.key
 switches.csv
 backups/
 
-# Keep executables in root directory (built by GitHub Actions)
-# These are intentionally tracked:
-# - AOS-CX.Config.Backup.Tool.exe (Windows)
-# - AOS-CX Config Backup Tool.app/ (macOS)
+# Build executables (built by GitHub Actions as artifacts, not committed)
+AOS-CX.Config.Backup.Tool.exe
+*.app
