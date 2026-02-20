@@ -23,7 +23,7 @@ from botocore.exceptions import ClientError
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class SwitchBackup:
-    VERSION = "3.3"
+    VERSION = "3.4"
 
     def __init__(self):
         if getattr(sys, 'frozen', False):
@@ -285,7 +285,7 @@ class SwitchBackup:
         self.scale_window()
         self.root.resizable(True, True)
 
-        notebook = ttk.Notebook(self.root, bootstyle="dark")
+        notebook = ttk.Notebook(self.root)
         notebook.pack(fill="both", expand=True, padx=10, pady=10)
 
         main_frame = ttk.Frame(notebook)
@@ -300,7 +300,7 @@ class SwitchBackup:
         right_column = ttk.Frame(columns_frame)
         right_column.pack(side="right", fill="y", padx=(10, 0))
 
-        version_label = ttk.Label(right_column, text=f"Version: {self.VERSION}", bootstyle="light")
+        version_label = ttk.Label(right_column, text=f"Version: {self.VERSION}")
         version_label.pack(side="bottom", anchor="se", pady=10)
 
         csv_frame = ttk.LabelFrame(left_column, text="Switch Inventory")
@@ -361,7 +361,7 @@ class SwitchBackup:
         run_backup_button.pack(pady=3, padx=10)
         self.status_label = ttk.Label(control_frame, text="Status: Idle")
         self.status_label.pack(pady=3, padx=10)
-        self.progress = ttk.Progressbar(control_frame, length=200, mode="determinate", bootstyle="success")
+        self.progress = ttk.Progressbar(control_frame, length=200, mode="determinate")
         self.progress.pack(pady=3, padx=10)
 
         git_frame = ttk.LabelFrame(right_column, text="Git Repository")

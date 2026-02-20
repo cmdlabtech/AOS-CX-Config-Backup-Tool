@@ -1,39 +1,80 @@
 # AOS-CX Config Backup Tool
-A lightweight utility to automate configuration backups for AOS-CX switches using the REST API. Supports both scheduled and manual backups, running discreetly from the system tray without requiring a service installation. Ensures reliable, unattended operation for scheduled tasks.
 
-## 📥 Download
+**Automate configuration backups for AOS-CX switches with ease. Schedule backups, store locally or upload to Git/Wasabi S3, all from a system tray app.**
 
-**Pre-built Windows executable available in this repository:**
-- **Windows**: `AOS-CX.Config.Backup.Tool.exe`
+A Windows desktop tool for network admins who need reliable, unattended AOS-CX config backups without complex setups.
 
-Or download from the [Releases](../../releases) page.
+## 📥 Download Latest Version
 
-# Requirements
-  - Windows 10/11
-  - Switch firmware version of at least 10.04
+| Platform | Download | Requirements |
+|----------|----------|--------------|
+| **🪟 Windows** | [**Download EXE (V3.4)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.4/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
 
-## Usage
-1. Create CSV file with the structure below
+### Installation
 
-  | name    | ip           |
-  |---------|--------------|
-  | switch1 | 192.168.1.1  |
-  | switch2 | 192.168.1.2  |
-  | switch3 | 192.168.1.3  |
+**Windows:**  
+Run the EXE directly. If Windows Defender warns you, click "More info" → "Run anyway".
 
-2. Run exe
-3. Select CSV file created in Step 1
-4. Choose backup directory location
-5. Set API Credentials - user can have operator built-in role for security purposes
-6. (optional) Enable "Automatic Schedule"
-7. (optional) Click "Run Backup Now" for a manual config backup of switches listed in csv file
+---
 
+## ✨ Features
 
-![image](https://github.com/user-attachments/assets/eeb18fd3-120e-4d2c-a258-9af097163791)
+- **🔄 Scheduled Backups** - Set daily, weekly, or custom schedules for automatic config pulls
+- **📁 Local Storage** - Save backups to any directory with automatic retention (max 5 per switch)
+- **☁️ Cloud Upload** - Optional upload to GitHub repos or Wasabi S3 buckets
+- **🖥️ System Tray** - Runs discreetly in the background, no service installation needed
+- **🔐 Secure Credentials** - Encrypted storage of API credentials and tokens
+- **📊 Status Tracking** - Real-time backup status and history per switch
+- **⚡ Manual Mode** - Run on-demand backups anytime
+- **🔒 REST API v10.04** - Compatible with AOS-CX firmware 10.04+
 
+---
 
+## 🚀 Usage
 
-   
+1. Create a CSV file with switch details:
 
-<!-- GitAds-Verify: Z6ZHXBL5TGG74LMBZTJYZARG8DOAL5FP -->
-[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=cmdlabtech/aos-cx-config-backup-tool@github)](https://gitads.dev/v1/ad-track?source=cmdlabtech/aos-cx-config-backup-tool@github)
+   | name    | ip           |
+   |---------|--------------|
+   | switch1 | 192.168.1.1  |
+   | switch2 | 192.168.1.2  |
+   | switch3 | 192.168.1.3  |
+
+2. Launch the app
+3. Select your CSV file
+4. Choose a backup directory
+5. Enter REST API credentials (operator role recommended)
+6. (Optional) Enable scheduling and cloud uploads
+7. (Optional) Click "Run Now" for immediate backup
+
+![Screenshot](https://github.com/user-attachments/assets/eeb18fd3-120e-4d2c-a258-9af097163791)
+
+---
+
+## 📋 Requirements
+
+- Windows 10/11
+- AOS-CX switch firmware ≥10.04
+- Internet connection for cloud uploads (optional)
+
+---
+
+## 🔄 Changelog
+
+### V3.4
+- Fixed app opening errors related to tkinter compatibility and DLL issues
+- Switched to dark theme for better usability
+- Improved build process with hidden imports for better exe compatibility
+
+### V3.3
+- Initial release with scheduling, local backups, and cloud integrations
+
+---
+
+## 📝 License
+
+MIT License - Copyright © 2026
+
+---
+
+**Made by Cameron**
