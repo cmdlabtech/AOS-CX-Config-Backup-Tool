@@ -55,7 +55,7 @@ Run the EXE directly. If Windows Defender warns you, click "More info" → "Run 
 
 - Windows 10/11
 - AOS-CX switch firmware ≥10.04
-- Internet connection for cloud uploads (optional)
+- CSV formatted file which includes the name of ip(s) of the switches that you want backed up
 
 ---
 
