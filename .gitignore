@@ -40,3 +40,13 @@ backups/
 # Build executables (built by GitHub Actions as artifacts, not committed)
 AOS-CX.Config.Backup.Tool.exe
 *.app
+
+# Local dev files (not needed by GitHub Actions or users)
+build.bat
+*.spec
+!.build/*.spec
+icon.ico
+!.build/icon.ico
+.build/build_windows.bat
+.build/icon.png
+.github/copilot-instructions.md
