@@ -2,12 +2,9 @@ name: Build Windows Executable
 
 on:
   push:
-    branches: [ main, master ]
     tags:
       - 'v*'
       - 'V*'
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -50,7 +47,7 @@ jobs:
       uses: actions/download-artifact@v4
       
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           AOS-CX-Config-Backup-Tool-Windows/AOS-CX.Config.Backup.Tool.exe

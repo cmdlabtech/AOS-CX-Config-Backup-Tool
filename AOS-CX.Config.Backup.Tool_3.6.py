@@ -11,6 +11,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import threading
 import sys
 from infi.systray import SysTrayIcon
@@ -23,7 +24,7 @@ from botocore.exceptions import ClientError
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class SwitchBackup:
-    VERSION = "3.4"
+    VERSION = "3.6"
 
     def __init__(self):
         if getattr(sys, 'frozen', False):
@@ -36,7 +37,7 @@ class SwitchBackup:
 
         self.config_file = os.path.join(self.base_dir_path, "backup_config.json")
         self.status_file = os.path.join(self.base_dir_path, "switch_status.json")
-        self.log_file = os.path.join(self.base_dir_path, "switch_backup.log")
+        self.log_file = os.path.join(self.base_dir_path, "log.txt")
         self.key_file = os.path.join(self.base_dir_path, "encryption_key.key")
         self.max_backups = 5
         self.schedule_enabled = True
@@ -95,6 +96,28 @@ class SwitchBackup:
             logging.error(f"Decryption failed: {str(e)}")
             return ""
 
+    def _update_gui(self, callback):
+        """Schedule a callback on the GUI main thread for thread-safe updates."""
+        try:
+            if self.root and self.root.winfo_exists():
+                self.root.after(0, callback)
+        except Exception:
+            pass
+
+    def _gui_set_status(self, text):
+        """Thread-safe status label update."""
+        self._update_gui(lambda: self.status_label.config(text=text) if self.status_label else None)
+
+    def _gui_set_progress(self, value=None, maximum=None):
+        """Thread-safe progress bar update."""
+        def _update():
+            if self.progress:
+                if maximum is not None:
+                    self.progress["maximum"] = maximum
+                if value is not None:
+                    self.progress["value"] = value
+        self._update_gui(_update)
+
     def resource_path(self, relative_path):
         try:
             base_path = sys._MEIPASS
@@ -104,12 +127,13 @@ class SwitchBackup:
 
     def setup_logging(self):
         try:
-            logging.basicConfig(
-                level=logging.INFO,
-                format='%(asctime)s - %(levelname)s - %(message)s',
-                filename=self.log_file,
-                filemode='a'
+            handler = RotatingFileHandler(
+                self.log_file, maxBytes=5*1024*1024, backupCount=3
             )
+            handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+            logger = logging.getLogger()
+            logger.setLevel(logging.INFO)
+            logger.addHandler(handler)
             logging.info("Logging initialized successfully")
         except Exception as e:
             logging.basicConfig(
@@ -162,7 +186,7 @@ class SwitchBackup:
                 self.wasabi_region = config.get('wasabi_region', default_config['wasabi_region'])
                 self.wasabi_enabled = config.get('wasabi_enabled', default_config['wasabi_enabled'])
                 logging.info(f"Loaded config: git_enabled={self.git_enabled}, wasabi_enabled={self.wasabi_enabled}")
-        except FileNotFoundError:
+        except (FileNotFoundError, json.JSONDecodeError) as e:
             self.csv_file = default_config['csv_path']
             self.schedule_frequency = default_config['schedule_frequency']
             self.schedule_times = default_config['schedule_times']
@@ -181,15 +205,21 @@ class SwitchBackup:
             self.wasabi_bucket = default_config['wasabi_bucket']
             self.wasabi_region = default_config['wasabi_region']
             self.wasabi_enabled = default_config['wasabi_enabled']
-            logging.info("Configuration file not found, using default settings")
+            if isinstance(e, json.JSONDecodeError):
+                logging.warning("Configuration file is corrupted, using default settings")
+            else:
+                logging.info("Configuration file not found, using default settings")
 
     def load_status(self):
         try:
             with open(self.status_file, 'r') as f:
                 self.switch_status = json.load(f)
-        except FileNotFoundError:
+        except (FileNotFoundError, json.JSONDecodeError) as e:
             self.switch_status = {}
-            logging.info("Switch status file not found, initializing empty status")
+            if isinstance(e, json.JSONDecodeError):
+                logging.warning("Switch status file is corrupted, initializing empty status")
+            else:
+                logging.info("Switch status file not found, initializing empty status")
 
     def save_status(self):
         try:
@@ -203,9 +233,8 @@ class SwitchBackup:
         if switch_name and ip and config:
             if not self.base_dir:
                 logging.error("Backup directory not set.")
-                if self.status_label:
-                    self.status_label.config(text="Error: Backup directory not set")
-                messagebox.showerror("Error", "Backup directory not set.")
+                self._gui_set_status("Error: Backup directory not set")
+                self._update_gui(lambda: messagebox.showerror("Error", "Backup directory not set."))
                 return
             # Sanitize switch_name to prevent directory traversal
             safe_switch_name = "".join(c for c in switch_name if c.isalnum() or c in ('-', '_', '.'))
@@ -451,8 +480,10 @@ class SwitchBackup:
                 self.custom_day_var = tk.StringVar(value=self.schedule_day)
                 ttk.Radiobutton(details_frame, text=self.schedule_day[:3], value=self.schedule_day, variable=self.custom_day_var).pack(side="left", padx=2)
             ttk.Label(details_frame, text="Time:").pack(side="left", padx=2)
-            self.hour_var = tk.StringVar(value=self.schedule_times[0].split(':')[0])
-            self.minute_var = tk.StringVar(value=self.schedule_times[0].split(':')[1])
+            default_time = self.schedule_times[0] if self.schedule_times else "02:00"
+            time_parts = default_time.split(':')
+            self.hour_var = tk.StringVar(value=time_parts[0] if len(time_parts) >= 1 else "02")
+            self.minute_var = tk.StringVar(value=time_parts[1] if len(time_parts) >= 2 else "00")
             ttk.Combobox(details_frame, textvariable=self.hour_var, values=[f"{h:02d}" for h in range(24)], width=5).pack(side="left", padx=2)
             ttk.Label(details_frame, text=":").pack(side="left")
             ttk.Combobox(details_frame, textvariable=self.minute_var, values=[f"{m:02d}" for m in range(60)], width=5).pack(side="left", padx=2)
@@ -569,10 +600,12 @@ class SwitchBackup:
             return None
 
         for attempt in range(max_retries):
+            logged_in = False
             try:
                 login_url = f"https://{ip}/rest/v10.04/login"
                 login_response = session.post(login_url, data={"username": username, "password": password}, verify=False, timeout=self.timeout)
                 login_response.raise_for_status()
+                logged_in = True
                 logging.info(f"Login successful for {ip} with API v10.04")
 
                 config_url = f"https://{ip}/rest/v10.04/configs/running-config"
@@ -589,12 +622,13 @@ class SwitchBackup:
                     logging.error(f"Failed to get config from {ip} after {max_retries} attempts: {str(e)}")
                     return None
             finally:
-                try:
-                    logout_url = f"https://{ip}/rest/v10.04/logout"
-                    session.post(logout_url, verify=False, timeout=self.timeout)
-                    logging.info(f"Logged out from {ip}")
-                except requests.exceptions.RequestException as e:
-                    logging.error(f"Failed to logout from {ip}: {str(e)}")
+                if logged_in:
+                    try:
+                        logout_url = f"https://{ip}/rest/v10.04/logout"
+                        session.post(logout_url, verify=False, timeout=self.timeout)
+                        logging.info(f"Logged out from {ip}")
+                    except requests.exceptions.RequestException as e:
+                        logging.error(f"Failed to logout from {ip}: {str(e)}")
         return config_text
 
     def manage_retention(self, switch_dir):
@@ -620,14 +654,21 @@ class SwitchBackup:
                 status.get("wasabi_status", "Not attempted")
             ), tags=(tag,))
 
-    def git_upload(self, is_manual=False, status_label=None, root=None):
+    def git_upload(self, is_manual=False):
         if not self.git_enabled or not self.git_repo_url or not self.git_token or not self.base_dir:
             self.last_git_status = "Skipped: Git settings incomplete"
             logging.info("Git upload skipped: settings incomplete")
             return
         try:
             g = Github(self.git_token)
-            repo = g.get_repo(self.git_repo_url.replace('https://github.com/', '').replace('.git', ''))
+            # Extract "owner/repo" from various URL formats or direct input
+            repo_name = self.git_repo_url.strip().rstrip('/')
+            repo_name = repo_name.replace('.git', '')
+            for prefix in ['https://github.com/', 'http://github.com/', 'github.com/']:
+                if repo_name.lower().startswith(prefix):
+                    repo_name = repo_name[len(prefix):]
+                    break
+            repo = g.get_repo(repo_name)
             files_to_upload = []
             for switch_dir in [d for d in os.listdir(self.base_dir) if os.path.isdir(os.path.join(self.base_dir, d))]:
                 switch_path = os.path.join(self.base_dir, switch_dir)
@@ -650,17 +691,15 @@ class SwitchBackup:
                         raise
             self.last_git_status = "Success"
             logging.info("Git upload successful")
-            if is_manual and status_label and root:
-                status_label.config(text="Status: Git upload completed")
-                root.update()
+            if is_manual:
+                self._gui_set_status("Status: Git upload completed")
         except Exception as e:
             self.last_git_status = f"Failed: {str(e)}"
             logging.error(f"Git upload failed: {str(e)}")
-            if is_manual and status_label and root:
-                status_label.config(text=f"Status: Git upload failed")
-                root.update()
+            if is_manual:
+                self._gui_set_status("Status: Git upload failed")
 
-    def wasabi_upload(self, is_manual=False, status_label=None, root=None):
+    def wasabi_upload(self, is_manual=False):
         if not self.wasabi_enabled or not self.wasabi_access_key or not self.wasabi_secret_key or not self.wasabi_bucket or not self.base_dir:
             self.last_wasabi_status = "Skipped: Wasabi settings incomplete"
             logging.info("Wasabi upload skipped: settings incomplete")
@@ -685,92 +724,80 @@ class SwitchBackup:
                     s3_client.upload_fileobj(f, self.wasabi_bucket, relative_path)
             self.last_wasabi_status = "Success"
             logging.info("Wasabi upload successful")
-            if is_manual and status_label and root:
-                status_label.config(text="Status: Wasabi upload completed")
-                root.update()
+            if is_manual:
+                self._gui_set_status("Status: Wasabi upload completed")
         except Exception as e:
             self.last_wasabi_status = f"Failed: {str(e)}"
             logging.error(f"Wasabi upload failed: {str(e)}")
-            if is_manual and status_label and root:
-                status_label.config(text=f"Status: Wasabi upload failed")
-                root.update()
+            if is_manual:
+                self._gui_set_status("Status: Wasabi upload failed")
 
     def backup_switches(self, is_manual=False):
         # Try to acquire lock with timeout protection
         if not self.backup_lock.acquire(blocking=False):
             logging.warning("Backup already in progress")
-            if self.status_label:
-                self.status_label.config(text="Status: Backup in progress")
+            self._gui_set_status("Status: Backup in progress")
             if is_manual:
-                messagebox.showwarning("Backup In Progress", "A backup is already running. Please wait.")
+                self._update_gui(lambda: messagebox.showwarning("Backup In Progress", "A backup is already running. Please wait."))
             return
         try:
             mode = "Manual" if is_manual else "Automatic"
-            if self.status_label:
-                self.status_label.config(text=f"Status: Running {mode.lower()} backup")
+            self._gui_set_status(f"Status: Running {mode.lower()} backup")
             logging.info(f"Starting {mode.lower()} backup")
             try:
                 with open(self.csv_file, 'r') as f:
                     reader = csv.DictReader(f)
+                    if not reader.fieldnames or not all(col in reader.fieldnames for col in ['name', 'ip']):
+                        self._gui_set_status("Error: CSV missing columns")
+                        logging.error("CSV missing 'name' or 'ip'")
+                        return
                     switches = list(reader)
                     self.total_switches = len(switches)
                     self.current_switch = 0
             except FileNotFoundError:
-                if self.status_label:
-                    self.status_label.config(text="Error: CSV not found")
+                self._gui_set_status("Error: CSV not found")
                 logging.error(f"CSV not found: {self.csv_file}")
                 return
-            self.progress["maximum"] = self.total_switches
-            self.progress["value"] = 0
+            self._gui_set_progress(value=0, maximum=self.total_switches)
             has_failure = False
-            with open(self.csv_file, 'r') as f:
-                reader = csv.DictReader(f)
-                if not all(col in reader.fieldnames for col in ['name', 'ip']):
-                    if self.status_label:
-                        self.status_label.config(text="Error: CSV missing columns")
-                    logging.error("CSV missing 'name' or 'ip'")
-                    return
-                for row in reader:
-                    self.current_switch += 1
-                    self.progress["value"] = self.current_switch
-                    if self.status_label:
-                        self.status_label.config(text=f"Status: Backing up {row['name']} ({self.current_switch}/{self.total_switches})")
-                        self.root.update()
-                    logging.info(f"Backing up {row['name']} ({row['ip']})")
-                    config = self.get_switch_config(row['ip'], row.get('username', self.default_username), row.get('password', self.default_password))
-                    if config:
-                        self.save_config(row['name'], row['ip'], config)
-                        if not self.base_dir:
-                            return
-                        self.switch_status[row['name']] = {
-                            "name": row['name'], "ip": row['ip'], "last_backup": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            "status": "Success", "git_status": self.last_git_status, "wasabi_status": self.last_wasabi_status
-                        }
-                    else:
-                        has_failure = True
-                        self.switch_status[row['name']] = {
-                            "name": row['name'], "ip": row['ip'], "last_backup": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            "status": "Failed", "git_status": "Not attempted", "wasabi_status": "Not attempted"
-                        }
-                    self.save_status()
-                    self.refresh_status()
+            for row in switches:
+                self.current_switch += 1
+                self._gui_set_progress(value=self.current_switch)
+                self._gui_set_status(f"Status: Backing up {row['name']} ({self.current_switch}/{self.total_switches})")
+                logging.info(f"Backing up {row['name']} ({row['ip']})")
+                config = self.get_switch_config(row['ip'], row.get('username', self.default_username), row.get('password', self.default_password))
+                if config:
+                    self.save_config(row['name'], row['ip'], config)
+                    if not self.base_dir:
+                        return
+                    self.switch_status[row['name']] = {
+                        "name": row['name'], "ip": row['ip'], "last_backup": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "status": "Success", "git_status": self.last_git_status, "wasabi_status": self.last_wasabi_status
+                    }
+                else:
+                    has_failure = True
+                    self.switch_status[row['name']] = {
+                        "name": row['name'], "ip": row['ip'], "last_backup": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "status": "Failed", "git_status": "Not attempted", "wasabi_status": "Not attempted"
+                    }
+                self.save_status()
+                self._update_gui(self.refresh_status)
             if not has_failure:
-                self.git_upload(is_manual=is_manual, status_label=self.status_label, root=self.root)
+                self.git_upload(is_manual=is_manual)
                 for switch in self.switch_status:
                     self.switch_status[switch]["git_status"] = self.last_git_status
-                self.wasabi_upload(is_manual=is_manual, status_label=self.status_label, root=self.root)
+                self.wasabi_upload(is_manual=is_manual)
                 for switch in self.switch_status:
                     self.switch_status[switch]["wasabi_status"] = self.last_wasabi_status
                 self.save_status()
-                self.refresh_status()
-            if self.status_label:
-                self.status_label.config(text=f"Status: {mode} backup {'completed' if not has_failure else 'partially completed'}")
+                self._update_gui(self.refresh_status)
+            self._gui_set_status(f"Status: {mode} backup {'completed' if not has_failure else 'partially completed'}")
             logging.info(f"{mode} backup completed")
         finally:
             self.backup_lock.release()
 
     def manual_backup(self):
-        self.backup_switches(is_manual=True)
+        threading.Thread(target=self.backup_switches, args=(True,), daemon=True).start()
 
     def update_schedule(self):
         self.schedule_frequency = self.freq_var.get()

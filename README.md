@@ -8,7 +8,7 @@ A Windows desktop tool for network admins who need reliable, unattended AOS-CX c
 
 | Platform | Download | Requirements |
 |----------|----------|--------------|
-| **🪟 Windows** | [**Download EXE (V3.4)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.4/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
+| **🪟 Windows** | [**Download EXE (V3.6)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.6/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
 
 ### Installation
 
@@ -60,6 +60,15 @@ Run the EXE directly. If Windows Defender warns you, click "More info" → "Run 
 ---
 
 ## 🔄 Changelog
+
+### V3.6
+- Fixed GUI freeze during backups by running in background thread
+- Fixed thread safety for all GUI updates (scheduled and manual backups)
+- Fixed crash on corrupted config/status JSON files
+- Fixed logout firing unnecessarily on failed login retries
+- Improved Git repo URL parsing (accepts multiple formats)
+- Added log rotation (5MB max, 3 backups) to prevent unbounded growth
+- Updated GitHub Actions release action to v2
 
 ### V3.4
 - Fixed app opening errors related to tkinter compatibility and DLL issues

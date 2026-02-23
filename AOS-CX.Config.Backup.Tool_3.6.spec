@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['AOS-CX.Config.Backup.Tool_3.3.py'],
+    ['AOS-CX.Config.Backup.Tool_3.6.py'],
     pathex=[],
     binaries=[],
     datas=[('icon.ico', '.')],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='AOS-CX.Config.Backup.Tool_3.3',
+    name='AOS-CX.Config.Backup.Tool_3.6',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
