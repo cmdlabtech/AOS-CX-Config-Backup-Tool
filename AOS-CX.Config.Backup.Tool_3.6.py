@@ -51,6 +51,7 @@ class SwitchBackup:
         self.wasabi_region = "us-east-1"
         self.wasabi_enabled = False
         self.last_wasabi_status = "Not attempted"
+        self.verify_ssl = False
         self.root = None
         self.systray = None
         self.backup_lock = threading.Lock()
@@ -162,7 +163,9 @@ class SwitchBackup:
             'wasabi_secret_key': '',
             'wasabi_bucket': '',
             'wasabi_region': 'us-east-1',
-            'wasabi_enabled': False
+            'wasabi_enabled': False,
+            'verify_ssl': False,
+            'max_backups': 5
         }
         try:
             with open(self.config_file, 'r') as f:
@@ -185,7 +188,9 @@ class SwitchBackup:
                 self.wasabi_bucket = config.get('wasabi_bucket', default_config['wasabi_bucket'])
                 self.wasabi_region = config.get('wasabi_region', default_config['wasabi_region'])
                 self.wasabi_enabled = config.get('wasabi_enabled', default_config['wasabi_enabled'])
-                logging.info(f"Loaded config: git_enabled={self.git_enabled}, wasabi_enabled={self.wasabi_enabled}")
+                self.verify_ssl = config.get('verify_ssl', default_config['verify_ssl'])
+                self.max_backups = config.get('max_backups', default_config['max_backups'])
+                logging.info(f"Loaded config: git_enabled={self.git_enabled}, wasabi_enabled={self.wasabi_enabled}, verify_ssl={self.verify_ssl}")
         except (FileNotFoundError, json.JSONDecodeError) as e:
             self.csv_file = default_config['csv_path']
             self.schedule_frequency = default_config['schedule_frequency']
@@ -205,6 +210,8 @@ class SwitchBackup:
             self.wasabi_bucket = default_config['wasabi_bucket']
             self.wasabi_region = default_config['wasabi_region']
             self.wasabi_enabled = default_config['wasabi_enabled']
+            self.verify_ssl = default_config['verify_ssl']
+            self.max_backups = default_config['max_backups']
             if isinstance(e, json.JSONDecodeError):
                 logging.warning("Configuration file is corrupted, using default settings")
             else:
@@ -285,7 +292,9 @@ class SwitchBackup:
                 'wasabi_secret_key': self._encrypt(self.wasabi_secret_key),
                 'wasabi_bucket': self.wasabi_bucket,
                 'wasabi_region': self.wasabi_region,
-                'wasabi_enabled': self.wasabi_enabled
+                'wasabi_enabled': self.wasabi_enabled,
+                'verify_ssl': self.verify_ssl,
+                'max_backups': self.max_backups
             }
             try:
                 with open(self.config_file, 'w') as f:
@@ -381,6 +390,35 @@ class SwitchBackup:
         self.schedule_toggle_var = tk.BooleanVar(value=self.schedule_enabled)
         sched_toggle = ttk.Checkbutton(sched_frame, text="Enable", variable=self.schedule_toggle_var, command=self.toggle_schedule)
         sched_toggle.pack(pady=3, padx=10)
+
+        ttk.Separator(left_column, orient="horizontal").pack(fill="x", pady=5)
+
+        # Advanced settings frame for configurable options (timeout, max_backups, SSL verify)
+        adv_frame = ttk.LabelFrame(left_column, text="Advanced Settings")
+        adv_frame.pack(fill="x", pady=10)
+        adv_sub = ttk.Frame(adv_frame)
+        adv_sub.pack(expand=True, padx=10, pady=5)
+
+        self.verify_ssl_var = tk.BooleanVar(value=self.verify_ssl)
+        verify_toggle = ttk.Checkbutton(adv_sub, text="Verify SSL certificates (recommended)", variable=self.verify_ssl_var, command=self.toggle_verify_ssl)
+        verify_toggle.pack(pady=2, anchor="w")
+
+        timeout_frame = ttk.Frame(adv_sub)
+        timeout_frame.pack(fill="x", pady=2)
+        ttk.Label(timeout_frame, text="Timeout (s):").pack(side="left", padx=3)
+        self.timeout_entry = ttk.Entry(timeout_frame, width=8)
+        self.timeout_entry.insert(0, str(self.timeout))
+        self.timeout_entry.pack(side="left", padx=3)
+
+        maxb_frame = ttk.Frame(adv_sub)
+        maxb_frame.pack(fill="x", pady=2)
+        ttk.Label(maxb_frame, text="Max backups per switch:").pack(side="left", padx=3)
+        self.max_backups_entry = ttk.Entry(maxb_frame, width=8)
+        self.max_backups_entry.insert(0, str(self.max_backups))
+        self.max_backups_entry.pack(side="left", padx=3)
+
+        adv_save = ttk.Button(adv_sub, text="Save Settings", command=self.save_advanced_settings)
+        adv_save.pack(pady=5)
 
         ttk.Separator(left_column, orient="horizontal").pack(fill="x", pady=5)
 
@@ -586,14 +624,44 @@ class SwitchBackup:
             logging.info("Schedule disabled")
         self.save_config()
 
+    def toggle_verify_ssl(self):
+        self.verify_ssl = self.verify_ssl_var.get()
+        self.save_config()
+        if not self.verify_ssl:
+            self._update_gui(lambda: messagebox.showwarning(
+                "Security Warning",
+                "SSL verification is DISABLED. This exposes credentials and config data to interception on untrusted networks. "
+                "Only disable for lab switches with self-signed certs. Enable for production use."
+            ))
+        logging.info(f"SSL verification {'enabled' if self.verify_ssl else 'disabled'}")
+
+    def save_advanced_settings(self):
+        try:
+            self.timeout = int(self.timeout_entry.get())
+            if self.timeout < 5 or self.timeout > 120:
+                raise ValueError("Timeout must be 5-120 seconds")
+            self.max_backups = int(self.max_backups_entry.get())
+            if self.max_backups < 1 or self.max_backups > 20:
+                raise ValueError("Max backups must be 1-20")
+            self.verify_ssl = self.verify_ssl_var.get()
+            self.save_config()
+            messagebox.showinfo("Success", "Advanced settings saved")
+            logging.info(f"Advanced settings updated: timeout={self.timeout}, max_backups={self.max_backups}, verify_ssl={self.verify_ssl}")
+        except ValueError as ve:
+            messagebox.showerror("Invalid Input", str(ve))
+        except Exception as e:
+            logging.error(f"Failed to save advanced settings: {str(e)}")
+            messagebox.showerror("Error", "Failed to save settings")
+
     def get_switch_config(self, ip, username, password):
         max_retries = 3
         retry_delay = 5
         session = requests.Session()
         config_text = None
+        verify = self.verify_ssl
 
         try:
-            response = requests.get(f"https://{ip}", timeout=5, verify=False)
+            response = requests.get(f"https://{ip}", timeout=5, verify=verify)
             logging.info(f"Connectivity test to {ip}: {response.status_code}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Connectivity test to {ip} failed: {str(e)}")
@@ -603,17 +671,26 @@ class SwitchBackup:
             logged_in = False
             try:
                 login_url = f"https://{ip}/rest/v10.04/login"
-                login_response = session.post(login_url, data={"username": username, "password": password}, verify=False, timeout=self.timeout)
+                login_response = session.post(login_url, data={"username": username, "password": password}, verify=verify, timeout=self.timeout)
                 login_response.raise_for_status()
                 logged_in = True
                 logging.info(f"Login successful for {ip} with API v10.04")
 
                 config_url = f"https://{ip}/rest/v10.04/configs/running-config"
-                config_response = session.get(config_url, headers={"Accept": "text/plain"}, verify=False, timeout=self.timeout)
+                config_response = session.get(config_url, headers={"Accept": "text/plain"}, verify=verify, timeout=self.timeout)
                 config_response.raise_for_status()
                 config_text = config_response.text
                 logging.info(f"Retrieved config from {ip} with API v10.04")
                 break
+            except requests.exceptions.HTTPError as e:
+                # More granular error reporting for API responses
+                status = e.response.status_code if e.response else "unknown"
+                text = e.response.text[:200] if e.response else ""
+                logging.error(f"HTTP error {status} from {ip}: {text}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    continue
+                return None
             except requests.exceptions.RequestException as e:
                 if attempt < max_retries - 1:
                     logging.warning(f"Attempt {attempt + 1} failed for {ip}: {str(e)}. Retrying...")
@@ -625,7 +702,7 @@ class SwitchBackup:
                 if logged_in:
                     try:
                         logout_url = f"https://{ip}/rest/v10.04/logout"
-                        session.post(logout_url, verify=False, timeout=self.timeout)
+                        session.post(logout_url, verify=verify, timeout=self.timeout)
                         logging.info(f"Logged out from {ip}")
                     except requests.exceptions.RequestException as e:
                         logging.error(f"Failed to logout from {ip}: {str(e)}")
