@@ -24,7 +24,7 @@ from botocore.exceptions import ClientError
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class SwitchBackup:
-    VERSION = "3.6"
+    VERSION = "3.7"
 
     def __init__(self):
         if getattr(sys, 'frozen', False):
