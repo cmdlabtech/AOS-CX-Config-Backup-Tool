@@ -8,7 +8,7 @@ A Windows desktop tool for network admins who need reliable, unattended AOS-CX c
 
 | Platform | Download | Requirements |
 |----------|----------|--------------|
-| **🪟 Windows** | [**Download EXE (V3.6)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.6/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
+| **🪟 Windows** | [**Download EXE (V3.7)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.7/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
 
 ### Installation
 
