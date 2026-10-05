@@ -4,6 +4,10 @@
 
 A Windows desktop tool for network admins who need reliable, unattended AOS-CX config backups without complex setups.
 
+<p align="center">
+  <a href="https://www.paypal.com/donate/?hosted_button_id=Z5SDZULELYGNS"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=flat-square&logo=paypal&logoColor=white" alt="Donate with PayPal"/></a>
+</p>
+
 ## 📥 Download Latest Version
 
 | Platform | Download | Requirements |
@@ -77,6 +81,14 @@ Run the EXE directly. If Windows Defender warns you, click "More info" → "Run 
 
 ### V3.3
 - Initial release with scheduling, local backups, and cloud integrations
+
+---
+
+## 💚 Support
+
+Optional donations help keep CMDLAB tools free and maintained:
+
+[Donate with PayPal](https://www.paypal.com/donate/?hosted_button_id=Z5SDZULELYGNS)
 
 ---
 
