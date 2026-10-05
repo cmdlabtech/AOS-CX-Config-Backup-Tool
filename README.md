@@ -94,7 +94,7 @@ Optional donations help keep CMDLAB tools free and maintained:
 
 ## 📝 License
 
-MIT License - Copyright © 2026
+[MIT License](LICENSE) - Copyright © 2026 CMDLAB LLC
 
 ---
 
