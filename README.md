@@ -82,7 +82,7 @@ Run the EXE directly. If Windows Defender warns you, click "More info" → "Run 
 
 ## 📝 License
 
-MIT License - Copyright © 2026
+[MIT License](LICENSE) - Copyright © 2026 CMDLAB LLC
 
 ---
 
