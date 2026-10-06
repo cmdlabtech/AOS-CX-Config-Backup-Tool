@@ -12,7 +12,7 @@ A Windows desktop tool for network admins who need reliable, unattended AOS-CX c
 
 | Platform | Download | Requirements |
 |----------|----------|--------------|
-| **🪟 Windows** | [**Download EXE (V3.7)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.7/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
+| **🪟 Windows** | [**Download EXE (V3.8)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.8/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
 
 ### Installation
 
@@ -64,6 +64,9 @@ Run the EXE directly. If Windows Defender warns you, click "More info" → "Run 
 ---
 
 ## 🔄 Changelog
+
+### V3.8
+- Windows EXE is now built without UPX compression to reduce antivirus false positives (e.g. WithSecure DeepGuard). No functional changes.
 
 ### V3.6
 - Fixed GUI freeze during backups by running in background thread
