@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
-# Windows-specific PyInstaller spec file
-# Run this on a Windows machine to create the .exe file
+# Windows-specific PyInstaller spec file (one-folder / onedir build)
+# Produces dist/AOS-CX.Config.Backup.Tool/ containing the .exe and its support files
 
 import os
 
@@ -40,17 +40,13 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='AOS-CX.Config.Backup.Tool',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,  # Set to False for windowed app (no console window)
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -61,4 +57,15 @@ exe = EXE(
     version_file=os.path.join(spec_root, 'version_info.txt'),  # Windows version-info resource
     uac_admin=False,  # Set to True if admin privileges needed
     uac_uiaccess=False,
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=False,
+    upx_exclude=[],
+    name='AOS-CX.Config.Backup.Tool',
 )

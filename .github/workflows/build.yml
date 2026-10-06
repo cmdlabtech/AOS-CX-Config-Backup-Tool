@@ -7,6 +7,10 @@ on:
       - 'V*'
   workflow_dispatch:
 
+env:
+  # PyInstaller is pinned; its bootloader is rebuilt from source for this exact version.
+  PYINSTALLER_VERSION: '6.22.3'
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -32,16 +36,60 @@ jobs:
         ruff check AOS-CX.Config.Backup.Tool_3.6.py --select E,F --ignore E501
         echo "Lint passed (basic checks)"
 
+    - name: Restore rebuilt PyInstaller wheel from cache
+      id: pyi-cache
+      uses: actions/cache@v4
+      with:
+        path: pyi-wheelhouse
+        key: pyinstaller-src-${{ env.PYINSTALLER_VERSION }}-${{ runner.os }}-${{ runner.arch }}-v1
+
+    - name: Build PyInstaller bootloader from source
+      if: steps.pyi-cache.outputs.cache-hit != 'true'
+      run: |
+        git clone --depth 1 --branch "v$env:PYINSTALLER_VERSION" https://github.com/pyinstaller/pyinstaller.git pyi-src
+        $stock = "pyi-src/PyInstaller/bootloader/Windows-64bit-intel"
+        Write-Host "Stock bootloader hashes:"
+        Get-FileHash "$stock/*.exe" -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 200 | Write-Host
+        Push-Location pyi-src/bootloader
+        python ./waf all --target-arch=64bit
+        if ($LASTEXITCODE -ne 0) { throw "bootloader build failed" }
+        Pop-Location
+        Write-Host "Rebuilt bootloader hashes:"
+        Get-FileHash "$stock/*.exe" -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 200 | Write-Host
+        pip wheel ./pyi-src --no-deps -w pyi-wheelhouse
+        if ($LASTEXITCODE -ne 0) { throw "PyInstaller wheel build failed" }
+
+    - name: Install PyInstaller with rebuilt bootloader
+      run: |
+        $whl = Get-ChildItem pyi-wheelhouse/pyinstaller-*.whl | Select-Object -First 1
+        pip install --force-reinstall --no-deps $whl.FullName
+        if ($LASTEXITCODE -ne 0) { throw "PyInstaller install failed" }
+        python -c "import PyInstaller, os, hashlib; d=os.path.join(os.path.dirname(PyInstaller.__file__),'bootloader','Windows-64bit-intel'); print('PyInstaller', PyInstaller.__version__); [print(f, hashlib.sha256(open(os.path.join(d,f),'rb').read()).hexdigest()) for f in sorted(os.listdir(d))]"
+
     - name: Build Windows executable
       run: |
         pyinstaller .build/AOS-CX.Config.Backup.Tool_Windows.spec --clean --noconfirm
         Move-Item -Force dist/AOS-CX.Config.Backup.Tool.exe ./AOS-CX.Config.Backup.Tool.exe
+
+    - name: Build Windows one-folder package
+      run: |
+        $ver = (Select-String -Path AOS-CX.Config.Backup.Tool_3.6.py -Pattern 'VERSION = "([^"]+)"').Matches[0].Groups[1].Value
+        pyinstaller .build/AOS-CX.Config.Backup.Tool_Windows_onedir.spec --clean --noconfirm
+        Compress-Archive -Path dist/AOS-CX.Config.Backup.Tool -DestinationPath "./AOS-CX.Config.Backup.Tool_V${ver}_Windows_folder.zip" -Force
+        Get-ChildItem *.exe, *.zip | Format-Table Name, Length -AutoSize | Out-String | Write-Host
         
     - name: Upload Windows artifact
       uses: actions/upload-artifact@v4
       with:
         name: AOS-CX-Config-Backup-Tool-Windows
         path: AOS-CX.Config.Backup.Tool.exe
+        retention-days: 90
+
+    - name: Upload Windows one-folder artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: AOS-CX-Config-Backup-Tool-Windows-Folder
+        path: AOS-CX.Config.Backup.Tool_V*_Windows_folder.zip
         retention-days: 90
 
   create-release:
@@ -58,6 +106,7 @@ jobs:
       with:
         files: |
           AOS-CX-Config-Backup-Tool-Windows/AOS-CX.Config.Backup.Tool.exe
+          AOS-CX-Config-Backup-Tool-Windows-Folder/*.zip
         draft: false
         prerelease: false
         generate_release_notes: true
