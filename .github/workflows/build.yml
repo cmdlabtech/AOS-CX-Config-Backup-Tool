@@ -107,6 +107,9 @@ jobs:
         files: |
           AOS-CX-Config-Backup-Tool-Windows/AOS-CX.Config.Backup.Tool.exe
           AOS-CX-Config-Backup-Tool-Windows-Folder/*.zip
+        body: |
+          Windows binaries in this release are built from source by GitHub Actions.
+          See the [Code signing policy](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool#code-signing-policy).
         draft: false
         prerelease: false
         generate_release_notes: true
