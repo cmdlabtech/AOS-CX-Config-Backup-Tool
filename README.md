@@ -21,6 +21,11 @@ A Windows desktop tool for network admins who need reliable, unattended AOS-CX c
 Run the EXE directly. If Windows Defender warns you, click "More info" → "Run anyway".  
 If your antivirus flags the single EXE, try the one-folder ZIP: extract it and run `AOS-CX.Config.Backup.Tool.exe` from the extracted folder.
 
+**Uninstall:**  
+The app is portable and makes no system changes (no installer, registry entries, or services). To remove it, close it from the system tray, then delete the EXE (or extracted folder) and the files it created next to it: `backup_config.json`, `switch_status.json`, `encryption_key.key`, `log.txt`, and your backup folder if you no longer need it.
+
+Release binaries are built from this repository by GitHub Actions. See the [Code signing policy](#code-signing-policy).
+
 ---
 
 ## ✨ Features
@@ -89,6 +94,31 @@ If your antivirus flags the single EXE, try the one-folder ZIP: extract it and r
 
 ### V3.3
 - Initial release with scheduling, local backups, and cloud integrations
+
+---
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+Windows release binaries are built from the source in this repository by GitHub Actions on GitHub-hosted runners. Every signing request is approved manually.
+
+**Team roles**
+- Committers and reviewers: [cmdlabtech](https://github.com/cmdlabtech) (Cameron Dibble)
+- Approvers: [cmdlabtech](https://github.com/cmdlabtech) (Cameron Dibble)
+
+Changes from outside contributors are accepted only through pull requests reviewed by a committer.
+
+### Privacy policy
+
+This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it.
+
+In practice, the app connects only to:
+- the AOS-CX switches you list in your CSV file (REST API login, config download, logout);
+- if you enable Git upload, the GitHub repository you configure (see [GitHub's privacy statement](https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement));
+- if you enable Wasabi upload, the Wasabi S3 bucket you configure (see [Wasabi's privacy policy](https://wasabi.com/legal/privacy-policy)).
+
+It has no telemetry, analytics, or update checks. Settings, credentials (encrypted), status, logs, and backups are stored locally next to the app.
 
 ---
 
