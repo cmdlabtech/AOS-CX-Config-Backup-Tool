@@ -58,7 +58,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=os.path.join(spec_root, 'icon.ico'),  # Windows will use this icon
-    version_file=os.path.join(spec_root, 'version_info.txt'),  # Windows version-info resource
+    version=os.path.join(spec_root, 'version_info.txt'),  # Windows version-info resource
     uac_admin=False,  # Set to True if admin privileges needed
     uac_uiaccess=False,
 )
