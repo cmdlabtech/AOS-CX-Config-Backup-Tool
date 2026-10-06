@@ -12,12 +12,14 @@ A Windows desktop tool for network admins who need reliable, unattended AOS-CX c
 
 | Platform | Download | Requirements |
 |----------|----------|--------------|
-| **🪟 Windows** | [**Download EXE (V3.7)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.7/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
+| **🪟 Windows** | [**Download EXE (V3.8)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.8/AOS-CX.Config.Backup.Tool.exe) | Windows 10/11 |
+| **🪟 Windows (one-folder ZIP)** | [**Download ZIP (V3.8)**](https://github.com/cmdlabtech/AOS-CX-Config-Backup-Tool/releases/download/V3.8/AOS-CX.Config.Backup.Tool_V3.8_Windows_folder.zip) | Windows 10/11 |
 
 ### Installation
 
 **Windows:**  
-Run the EXE directly. If Windows Defender warns you, click "More info" → "Run anyway".
+Run the EXE directly. If Windows Defender warns you, click "More info" → "Run anyway".  
+If your antivirus flags the single EXE, try the one-folder ZIP: extract it and run `AOS-CX.Config.Backup.Tool.exe` from the extracted folder.
 
 ---
 
@@ -64,6 +66,12 @@ Run the EXE directly. If Windows Defender warns you, click "More info" → "Run 
 ---
 
 ## 🔄 Changelog
+
+### V3.8
+- Windows build now uses a PyInstaller bootloader compiled from source in CI (PyInstaller pinned to 6.22.3) instead of the stock prebuilt bootloader
+- Added Windows version information to the EXE (company, product, file version 3.8.0.0)
+- New one-folder download option (`AOS-CX.Config.Backup.Tool_V3.8_Windows_folder.zip`): unzip and run the EXE inside the folder
+- These build changes aim to reduce antivirus heuristic false positives (e.g. WithSecure DeepGuard). No functional changes.
 
 ### V3.6
 - Fixed GUI freeze during backups by running in background thread

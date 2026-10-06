@@ -1,0 +1,29 @@
+# UTF-8
+# Windows version-info resource for the PyInstaller build (referenced by the .spec files).
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(3, 8, 0, 0),
+    prodvers=(3, 8, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        '040904B0',
+        [StringStruct('CompanyName', 'CMDLAB LLC'),
+         StringStruct('FileDescription', 'AOS-CX Config Backup Tool'),
+         StringStruct('FileVersion', '3.8.0.0'),
+         StringStruct('InternalName', 'AOS-CX.Config.Backup.Tool'),
+         StringStruct('LegalCopyright', 'Copyright (c) 2026 CMDLAB LLC. MIT License.'),
+         StringStruct('OriginalFilename', 'AOS-CX.Config.Backup.Tool.exe'),
+         StringStruct('ProductName', 'AOS-CX Config Backup Tool'),
+         StringStruct('ProductVersion', '3.8.0.0')])
+    ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
